@@ -6,14 +6,6 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
 map.zoomControl && map.removeControl(map.zoomControl);
 
-L.control.zoom({
-    position: 'bottomright'
-}).addTo(map);
-
-document.querySelector('.leaflet-control-zoom').style.position = 'absolute';
-document.querySelector('.leaflet-control-zoom').style.bottom = '100px';
-document.querySelector('.leaflet-control-zoom').style.right = '50px';
-
 var geoJSONLayers = [];
 
 fetch('./INDIA_DISTRICTS.geojson')
@@ -60,12 +52,14 @@ var geocoder = L.Control.Geocoder.nominatim();
 
 // Function to handle search and validate location
 function validateLocation() {
+    document.getElementById('spinnerCircle').style.display = "block";
     document.getElementById('locationInputOpen').click();
 
     var location = document.getElementById('locationSearch').value;
 
     if (location.trim() === "") {
         alert("Please enter a location");
+        document.getElementById('spinnerCircle').style.display = "none";
         return;
     }
 
@@ -85,8 +79,11 @@ function validateLocation() {
             L.marker(result.center).addTo(map)
                 .bindPopup("Location: " + result.name)
                 .openPopup();
+            
+            document.getElementById('spinnerCircle').style.display = "none";
         } else {
             alert("Invalid location entered. Please try again.");
+            document.getElementById('spinnerCircle').style.display = "none";
         }
     });
 }

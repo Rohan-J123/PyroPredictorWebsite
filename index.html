@@ -16,7 +16,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Lobster&family=Nerko+One&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
     
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=delete_forever,recenter,search"/>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=add,delete_forever,recenter,remove,search"/>
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
     <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
@@ -39,8 +39,8 @@
 <body>
     <div id="map"></div>
     <div id="background" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.2); z-index: 1000;"></div>
-    <div style="left: 35px; display: flex; position: absolute; z-index: 1500; top: 40px; flex-direction: row; align-items: center;">
-        <button id="locationInputOpen" class="btn btn-light" type="button" data-bs-toggle="collapse" data-bs-target="#searchLocationForm" aria-expanded="false" aria-controls="searchLocationForm" style="width: 45px; height: 45px; border-radius: 45px; margin-right: 5px; display: flex; justify-content: center; align-items: center; border-width: 3px; border-color: gray;">
+    <div style="left: 2vw; display: flex; position: absolute; z-index: 1500; top: 40px; flex-direction: row; align-items: center;">
+        <button id="locationInputOpen" class="btn btn-light" type="button" data-bs-toggle="collapse" data-bs-target="#searchLocationForm" aria-expanded="false" aria-controls="searchLocationForm" style="width: 45px; height: 45px; border-radius: 45px; margin-right: 5px; display: flex; justify-content: center; align-items: center; border-width: 3px; border-color: gray;" onclick='document.getElementById("locationSearch").focus();'>
             <span class="material-symbols-outlined" style="font-weight: bolder; color: gray;">
                 search
             </span>
@@ -51,7 +51,7 @@
             <div id="suggestions" style="display: none; padding: 0px 10px; z-index: 1500;margin-top: 10px; width: 350px; border-radius: 10px; position: absolute; background: white; border: 1px solid #ccc; max-height: 200px; overflow-y: auto; z-index: 1500;"></div>
         </form>
     </div>
-    <div style="left: 35px; display: flex; position: absolute; z-index: 1500; top: 100px; flex-direction: row; align-items: center;">
+    <div style="left: 2vw; display: flex; position: absolute; z-index: 1500; top: 100px; flex-direction: row; align-items: center;">
         <button id="clearMarkers" class="btn btn-light" type="button" style="width: 45px; height: 45px; border-radius: 45px; margin-right: 5px; display: flex; justify-content: center; align-items: center; border-width: 3px; border-color: gray;" onclick="map.eachLayer(function(layer) {if (layer instanceof L.Marker) {map.removeLayer(layer);}});">
             <span class="material-symbols-outlined" style="font-weight: bolder; color: gray;">
                 delete_forever
@@ -59,15 +59,30 @@
         </button>
     </div>
     
-    <div style="position: absolute; z-index: 1500; left: 40px; bottom: 40px;">
+    <div style="position: absolute; z-index: 1500; left: 2vw; bottom: 40px;">
         <label style="font-size: x-large;" for="colourOpacity" class="lobster-regular">Fire Prediction Opacity</label>
         <br>
         <input type="range" id="colourOpacitySlider" style="accent-color: #0d6efd; width: 250px;"  min="0" max="1" step="0.01" value="0.5">
     </div>
-    <div style="position: absolute; z-index: 1500; right: 50px; bottom: 50px;">
-        <button type="button" class="btn btn-primary" style="width: 50px; height: 50px; border-radius: 50px; display: flex; justify-content: center; align-items: center;" onclick="map.setView([23, 80], 5);">
+    <div style="position: absolute; z-index: 1500; right: 3vw; bottom: 50px; display: flex; flex-direction: column; align-items: center;">
+        <div class="btn-group-vertical" role="group" aria-label="Vertical button group" style="width: 40px;">
+            <button type="button" class="btn btn-light" style="display: flex; justify-content: center; align-items: center; width: 40px; height: 40px;" onclick="map.zoomIn(1, { animate: true })">
+                <span class="material-symbols-outlined">
+                    add
+                </span>
+            </button>            
+            <button type="button" class="btn btn-light" style="display: flex; justify-content: center; align-items: center; width: 40px; height: 40px;" onclick="map.zoomOut(1, { animate: true })">
+                <span class="material-symbols-outlined">
+                    remove
+                </span>
+            </button>            
+        </div>
+        <button type="button" class="btn btn-primary" style="width: 50px; height: 50px; border-radius: 50px; display: flex; justify-content: center; align-items: center; margin-top: 20px;" onclick="map.setView([23, 80], 5); geoJSONLayers.forEach(function(layer) {layer.setStyle({weight: 0.5, fillOpacity: 0.5});}); document.getElementById('colourOpacitySlider').value = 0.5;">
             <span class="material-symbols-outlined">recenter</span>
-        </button> 
+        </button>
+    </div>    
+    <div id="spinnerCircle" class="spinner-border text-primary" role="status" style="display: none; z-index: 3000; position: absolute; top: 40%; left: 50%; width: 50px; height: 50px;">
+        <span class="visually-hidden">Loading...</span>
     </div>
     <script src="./scripts/fire_predictor.js"></script>
     <script src="./scripts/map_handling.js"></script>
