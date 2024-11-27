@@ -1,0 +1,27 @@
+/* .material-symbols-outlined {
+    font-variation-settings:
+    'FILL' 0,
+    'wght' 400,
+    'GRAD' 0,
+    'opsz' 24
+} */
+
+.modal-backdrop {
+    z-index: 2980; /* Ensure it is below the modal but above other elements */
+}
+
+/* Modal content to appear on top */
+.modal {
+    z-index: 2999; /* Ensure it's the highest */
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield; /* For Firefox */
+    appearance: textfield; /* For other browsers */
+}

@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "@turf/turf": "^7.1.0",
+    "bootstrap": "^5.3.3",
+    "leaflet": "^1.9.4",
+    "leaflet-control-geocoder": "^2.4.0",
+    "leaflet-geosearch": "^4.0.0"
+  }
+}

@@ -50,7 +50,6 @@ document.getElementById('colourOpacitySlider').addEventListener('input', functio
 
 var geocoder = L.Control.Geocoder.nominatim();
 
-// Function to handle search and validate location
 function validateLocation() {
     document.getElementById('spinnerCircle').style.display = "block";
     document.getElementById('locationInputOpen').click();
