@@ -99,9 +99,9 @@ async function loadDistrictLayers(dateNumber) {
 
                             return {
                                 color: 'black',
-                                weight: 0.5,
+                                weight: document.getElementById('colourOpacitySlider').value,
                                 fillColor: layerColor,
-                                fillOpacity: 0.5
+                                fillOpacity: document.getElementById('colourOpacitySlider').value
                             };
                         }
                     });
@@ -154,6 +154,18 @@ document.getElementById('colourDateSlider').addEventListener('input', function(e
     loadDistrictLayers(dateValue);
 });
 
+function getDateRange(i){
+    const today = new Date();
+
+    today.setDate(today.getDate() + i);
+
+    const day = String(today.getDate()).padStart(2, '0');
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const year = today.getFullYear();
+
+    return `${day}-${month}-${year}`
+}
+
 
 var geocoder = L.Control.Geocoder.nominatim();
 
@@ -193,7 +205,8 @@ async function validateLocation() {
             var popupContent = "Location: " + result.name + "<br><br>" +
                                "Latitude: " + lat.toFixed(6) + "<br>" +
                                "Longitude: " + lng.toFixed(6) + "<br><br>" +
-                               "Fire Prediction: " + predictionNumber[0] + "%";
+                               "Forest Fire Prediction:- " + "<br>" +
+                                predictionNumber[0] + "%";
     
             L.marker(result.center).addTo(map)
                 .bindPopup(popupContent)
@@ -276,10 +289,11 @@ input.addEventListener('input', async () => {
                     const predictionNumber = await runModelPrediction(parseFloat(result.lat), parseFloat(result.lon));
 
                     if (predictionNumber && predictionNumber.length > 0) {
-                        const popupContent = "Location: " + result.display_name + "<br><br>" +
-                                             "Latitude: " + parseFloat(result.lat).toFixed(6) + "<br>" +
-                                             "Longitude: " + parseFloat(result.lon).toFixed(6) + "<br><br>" +
-                                             "Fire Prediction: " + predictionNumber[0] + "%";
+                        const popupContent =    "Location: " + result.display_name + "<br><br>" +
+                                                "Latitude: " + parseFloat(result.lat).toFixed(6) + "<br>" +
+                                                "Longitude: " + parseFloat(result.lon).toFixed(6) + "<br><br>" +
+                                                "Forest Fire Prediction:- " + "<br>" +
+                                                predictionNumber[0] + "%";
 
                         L.marker([result.lat, result.lon]).addTo(map).bindPopup(popupContent).openPopup();
                         document.getElementById('spinnerCircle').style.display = "none";

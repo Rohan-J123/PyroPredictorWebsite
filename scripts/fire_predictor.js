@@ -14,7 +14,7 @@ async function runModelPrediction(latitude, longitude) {
     try {
         const model = await tf.loadLayersModel('../Model/Forest_Fire_Predictor_3/model.json');
 
-        const cacheKey = `la=${latitude},lo=${longitude}`;
+        const cacheKey = `la=${latitude.toFixed(3)},lo=${longitude.toFixed(3)}`;
         const cachedParameters = JSON.parse(sessionStorage.getItem(cacheKey));
 
         let groupedData;
@@ -55,17 +55,19 @@ async function runModelPrediction(latitude, longitude) {
     }
 }
 
+var weightArray = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
 
 async function runModelPredictionDistrict(districtID, dateNumber) {
     try {
-        const model = await tf.loadLayersModel('../Model/Forest_Fire_Predictor_3/model.json');
+        const model_original = await tf.loadLayersModel('../Model/Forest_Fire_Predictor_3_Original/model.json');
+        const model_modify = await tf.loadLayersModel('../Model/Forest_Fire_Predictor_3_Modify/model.json');
 
         const cacheKey = `districtID=${districtID}`;
-        const cachedParameters = JSON.parse(sessionStorage.getItem(cacheKey));
+        const cachedParameters = JSON.parse(localStorage.getItem(cacheKey));
 
         let groupedData;
 
-        if (cachedParameters !== null) {
+        if (cachedParameters !== null && localStorage.getItem("Date") !== null && getDateRange(0) == localStorage.getItem("Date")) {
             console.log('Using cached parameters');
             groupedData = cachedParameters;
         } else {
@@ -74,18 +76,32 @@ async function runModelPredictionDistrict(districtID, dateNumber) {
                 throw new Error(`Network response was not ok: ${response.statusText}`);
             }
             groupedData = await response.json();
-            sessionStorage.setItem(cacheKey, JSON.stringify(groupedData));
+            localStorage.setItem(cacheKey, JSON.stringify(groupedData));
+            localStorage.setItem("Date", getDateRange(0));
         }
 
+        const firstLayerOriginal = model_original.layers[0];
+        const firstLayerModify = model_modify.layers[0];
+
+        const [weights, biases] = firstLayerOriginal.getWeights();
+        const weightsArray = await weights.array();
+        for (let i = 0; i < weightArray.length; i++) {
+            for (let j = 0; j < weightsArray[i].length; j++) {
+                weightsArray[i][j] *= weightArray[i];
+            }
+        }
+
+        const modifiedWeights = tf.tensor(weightsArray);
+        firstLayerModify.setWeights([modifiedWeights, biases]);
+
         const inputTensor = tf.tensor([groupedData[dateNumber]]);
-        const prediction = model.predict(inputTensor);
+        const prediction = model_modify.predict(inputTensor);
         const predictionArray = await prediction.array();
 
         inputTensor.dispose();
         prediction.dispose();
 
         return predictionArray[0];
-
     } catch (error) {
         console.error('Error during prediction:', error);
         throw error;
