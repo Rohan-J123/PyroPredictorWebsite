@@ -1,7 +1,10 @@
 {
   "dependencies": {
+    "@google/earthengine": "^1.4.1",
+    "@tensorflow/tfjs": "^4.22.0",
     "@turf/turf": "^7.1.0",
     "bootstrap": "^5.3.3",
+    "google-auth-library": "^9.15.0",
     "leaflet": "^1.9.4",
     "leaflet-control-geocoder": "^2.4.0",
     "leaflet-geosearch": "^4.0.0"

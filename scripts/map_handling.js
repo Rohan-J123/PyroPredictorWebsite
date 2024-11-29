@@ -1,4 +1,4 @@
-var map = L.map('map').setView([23, 80], 5);
+var map = L.map('map', {attributionControl: false}).setView([23, 80], 5);
 
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -8,34 +8,114 @@ map.zoomControl && map.removeControl(map.zoomControl);
 
 var geoJSONLayers = [];
 
-fetch('./INDIA_DISTRICTS.geojson')
-.then(response => response.json())
-.then(data => {
-    for(var i = 0; i < data['features'].length; i++){
-        var districtCentre = turf.centroid(data['features'][i])['geometry']['coordinates'];
-        var colourIndex = predictFire(districtCentre);
-        var colourVal;
-        switch(colourIndex){
-            case 0: colourVal = 'green'; break;
-            case 1: colourVal = 'yellow'; break;
-            case 2: colourVal = 'orange'; break;
-            case 3: colourVal = 'red'; break;
+async function determineColour(districtID, dateNumber, signal) {
+    try {
+        if (signal.aborted) {
+            return null;
         }
-        
-        var layer = L.geoJSON(data['features'][i], {
-            style: function (feature) {
-                return {
-                    color: 'black',
-                    weight: 0.5,
-                    fillColor: colourVal,
-                    fillOpacity: 0.5
-                };
-            }
-        }).addTo(map);
 
-        geoJSONLayers.push(layer);
+        var colourResult = await runModelPredictionDistrict(districtID, dateNumber);
+        console.log("ColourResult: " + colourResult);
+
+        if (colourResult !== null && colourResult !== undefined) {
+            var colourVal;
+            if (colourResult < 1) {
+                colourVal = 'green';
+            } else if (colourResult < 2) {
+                colourVal = 'yellow';
+            } else if (colourResult < 3) {
+                colourVal = 'orange';
+            } else {
+                colourVal = 'red';
+            }
+            return colourVal;
+        } else {
+            console.error("Invalid colourResult:", colourResult);
+            return 'black';
+        }
+    } catch (error) {
+        console.error("Error during prediction:", error);
+        return 'black';
     }
-});
+}
+
+
+
+let controllers = [];
+
+function abortAllRequests() {
+    controllers.forEach(controller => {
+        controller.abort();
+        geoJSONLayers.forEach(function(layer) {
+            map.removeLayer(layer);
+        });
+        geoJSONLayers = [];
+        console.log("Aborted previous request");
+    });
+    controllers = [];
+}
+
+async function loadDistrictLayers(dateNumber) {
+    abortAllRequests();
+
+    const controller = new AbortController();
+    controllers.push(controller);
+    const signal = controller.signal;
+
+    try {
+        geoJSONLayers.forEach(function(layer) {
+            map.removeLayer(layer);
+        });
+        geoJSONLayers = [];
+
+        const response = await fetch('./INDIA_DISTRICTS.geojson', { signal });
+
+        if (!response.ok) {
+            throw new Error(`Network response was not ok: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+
+        let previousColor = null;
+        for (var i = 0; i < data['features'].length; i++) {
+            var districtID = data['features'][i].id;
+            try {
+                var colourVal = await determineColour(districtID, dateNumber, signal);
+                console.log("ColourVal: " + colourVal);
+
+                if (colourVal != null) {
+                    var layer = L.geoJSON(data['features'][i], {
+                        style: function () {
+                            var layerColor = (colourVal === 'black' && previousColor) ? previousColor : colourVal;
+                            previousColor = layerColor;
+
+                            return {
+                                color: 'black',
+                                weight: 0.5,
+                                fillColor: layerColor,
+                                fillOpacity: 0.5
+                            };
+                        }
+                    });
+                }
+
+                layer.addTo(map);
+                geoJSONLayers.push(layer);
+
+            } catch (error) {
+                console.error("Error determining color for district:", error);
+            }
+        }
+    } catch (error) {
+        if (error.name === 'AbortError') {
+            console.log('Fetch request was aborted');
+        } else {
+            console.error('Error fetching or processing the data:', error);
+        }
+    }
+}
+
+loadDistrictLayers(0);
 
 document.getElementById('colourOpacitySlider').addEventListener('input', function(e) {
     var opacityValue = e.target.value;
@@ -48,9 +128,28 @@ document.getElementById('colourOpacitySlider').addEventListener('input', functio
     });
 });
 
+document.getElementById('colourDateSlider').addEventListener('input', function(e) {
+    var dateValue = parseInt(e.target.value);
+
+    console.log(dateValue);
+    
+    const today = new Date();
+
+    today.setDate(today.getDate() + dateValue);
+
+    const day = String(today.getDate()).padStart(2, '0');
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const year = today.getFullYear();
+
+    document.getElementById('colourDateLabel').innerText = `Prediction Date: ${day}-${month}-${year}`;
+
+    loadDistrictLayers(dateValue);
+});
+
+
 var geocoder = L.Control.Geocoder.nominatim();
 
-function validateLocation() {
+async function validateLocation() {
     document.getElementById('spinnerCircle').style.display = "block";
     document.getElementById('locationInputOpen').click();
 
@@ -62,7 +161,9 @@ function validateLocation() {
         return;
     }
 
-    geocoder.geocode(location, function(results) {
+    try {
+        const results = await geocodeLocation(location);
+
         if (results.length > 0) {
             var result = results[0];
             map.setView(result.center, 13);
@@ -73,10 +174,21 @@ function validateLocation() {
                     fillOpacity: 0.2
                 });
             });
-            document.getElementById('colourOpacitySlider').value = 0.2;
 
+            document.getElementById('colourOpacitySlider').value = 0.2;
+            var lat = result.center.lat;
+            var lng = result.center.lng;
+            
+            // Await the prediction function here
+            const predictionNumber = await runModelPrediction(lat, lng);
+
+            var popupContent = "Location: " + result.name + "<br><br>" +
+                               "Latitude: " + lat.toFixed(6) + "<br>" +
+                               "Longitude: " + lng.toFixed(6) + "<br><br>" +
+                               "Fire Prediction: " + predictionNumber[0] + "%";
+    
             L.marker(result.center).addTo(map)
-                .bindPopup("Location: " + result.name)
+                .bindPopup(popupContent)
                 .openPopup();
             
             document.getElementById('spinnerCircle').style.display = "none";
@@ -84,8 +196,25 @@ function validateLocation() {
             alert("Invalid location entered. Please try again.");
             document.getElementById('spinnerCircle').style.display = "none";
         }
+    } catch (error) {
+        console.log("Error:", error);
+        alert("An error occurred while processing the location. Please try again.");
+        document.getElementById('spinnerCircle').style.display = "none";
+    }
+}
+
+async function geocodeLocation(location) {
+    return new Promise((resolve, reject) => {
+        geocoder.geocode(location, function(results) {
+            if (results && results.length > 0) {
+                resolve(results);
+            } else {
+                reject("No results found.");
+            }
+        });
     });
 }
+
 
 document.getElementById("searchLocationForm").addEventListener("submit", function(event) {
     event.preventDefault();
@@ -102,45 +231,74 @@ const input = document.getElementById('locationSearch');
 
 input.addEventListener('input', async () => {
     const query = input.value;
+    const suggestionBox = document.getElementById('suggestions');
+
     document.getElementById('suggestions').style.display = "none";
-    if (query.length < 3) return; // Wait for a few characters before fetching
+    if (query.length < 3) return;
 
     document.getElementById('suggestions').style.display = "block";
 
-    const results = await searchLocation(query);
-    const suggestionBox = document.getElementById('suggestions');
+    try {
+        const results = await searchLocation(query);
+        suggestionBox.innerHTML = '';
 
-    // Clear previous suggestions
-    suggestionBox.innerHTML = '';
+        results.forEach(result => {
+            const suggestion = document.createElement('div');
+            suggestion.textContent = result.display_name;
+            suggestion.style.cursor = 'pointer';
+            suggestion.addEventListener('click', async () => {
+                document.getElementById('spinnerCircle').style.display = "block";
 
-    results.forEach(result => {
-        const suggestion = document.createElement('div');
-        suggestion.textContent = result.display_name;
-        suggestion.style.cursor = 'pointer';
-        // suggestion.tabIndex = "1"
-        suggestion.addEventListener('click', () => {
-            document.getElementById('suggestions').style.display = "none";
-            
-            geoJSONLayers.forEach(function(layer) {
-                layer.setStyle({
-                    weight: 0.2,
-                    fillOpacity: 0.2
+                document.getElementById('suggestions').style.display = "none";
+        
+                geoJSONLayers.forEach(function(layer) {
+                    layer.setStyle({
+                        weight: 0.2,
+                        fillOpacity: 0.2
+                    });
                 });
-            });
-            document.getElementById('colourOpacitySlider').value = 0.2;
 
-            document.getElementById('locationInputOpen').click();
-            input.value = result.display_name;
-            map.setView([result.lat, result.lon], 10);
-            L.marker([result.lat, result.lon]).addTo(map).bindPopup(result.display_name).openPopup();
-            suggestionBox.innerHTML = '';
+                document.getElementById('colourOpacitySlider').value = 0.2;
+
+                document.getElementById('locationInputOpen').click();
+                input.value = result.display_name;
+                map.setView([result.lat, result.lon], 10);
+
+                try {
+                    const predictionNumber = await runModelPrediction(parseFloat(result.lat), parseFloat(result.lon));
+
+                    if (predictionNumber && predictionNumber.length > 0) {
+                        const popupContent = "Location: " + result.display_name + "<br><br>" +
+                                             "Latitude: " + parseFloat(result.lat).toFixed(6) + "<br>" +
+                                             "Longitude: " + parseFloat(result.lon).toFixed(6) + "<br><br>" +
+                                             "Fire Prediction: " + predictionNumber[0] + "%";
+
+                        L.marker([result.lat, result.lon]).addTo(map).bindPopup(popupContent).openPopup();
+                        document.getElementById('spinnerCircle').style.display = "none";
+                    } else {
+                        console.log("No prediction data available.");
+                    }
+
+                    suggestionBox.innerHTML = '';
+                } catch (error) {
+                    console.log("Error in Prediction.", error);
+                }
+            });
+            suggestionBox.appendChild(suggestion);
         });
-        suggestionBox.appendChild(suggestion);
-    });
+    } catch (error) {
+        console.log("Error fetching location results.", error);
+    }
 });
+
+
 
 document.getElementById('background').addEventListener('click', function(event) {
     document.getElementById('locationInputOpen').click();
+});
+
+document.getElementById('backgroundNavbar').addEventListener('click', function(event) {
+    document.getElementById('navbarToggle').click();
 });
 
 document.getElementById('locationInputOpen').addEventListener('click', function(event) {
@@ -148,5 +306,13 @@ document.getElementById('locationInputOpen').addEventListener('click', function(
         document.getElementById('background').style.display = 'none';
     } else {
         document.getElementById('background').style.display = 'block';
+    }
+});
+
+document.getElementById('navbarToggle').addEventListener('click', function(event) {
+    if(document.getElementById('backgroundNavbar').style.display == 'block'){
+        document.getElementById('backgroundNavbar').style.display = 'none';
+    } else {
+        document.getElementById('backgroundNavbar').style.display = 'block';
     }
 });
