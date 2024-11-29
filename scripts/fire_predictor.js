@@ -1,4 +1,4 @@
-var cloudURL = "http://localhost:3000";
+var cloudURL = "https://pyropredictor.netlify.app/.netlify/functions/api";
 
 class L2 {
 
