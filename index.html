@@ -227,7 +227,7 @@
                     <h1 class="modal-title fs-1 lobster-regular" id="settingsModalLabel"
                         style="text-align: center; width: 90%;">Parameter Weights</h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
-                        style="width: 5%;"></button>
+                        style="width: 5%;" id="weightModalClose"></button>
                 </div>
                 <div class="modal-body" style="padding: 0px 16px;">
                     <div id="weightSlides" class="carousel slide carousel-dark">
@@ -491,8 +491,12 @@
                         data-bs-slide="prev" style="width: 50px;">
                         &lt;
                     </button>
-                    <button type="button" class="btn btn-success"
-                        style="width: 100px; font-size: large; font-family: 'Times New Roman'">APPLY</button>
+                    <div>
+                        <button type="button" class="btn btn-danger"
+                        style="width: 100px; margin-right: 20px; font-size: large; font-family: 'Times New Roman'" onclick="resetWeights();">RESET</button>
+                        <button type="button" class="btn btn-success"
+                        style="width: 100px; margin-left: 20px; font-size: large; font-family: 'Times New Roman'" onclick="changeWeights();">APPLY</button>
+                    </div>
                     <button type="button" class="btn btn-outline-primary" data-bs-target="#weightSlides"
                         data-bs-slide="next" style="width: 50px;">
                         &gt;
