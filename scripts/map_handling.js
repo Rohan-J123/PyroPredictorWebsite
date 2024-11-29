@@ -141,7 +141,7 @@ document.getElementById('colourDateSlider').addEventListener('input', function(e
     const month = String(today.getMonth() + 1).padStart(2, '0');
     const year = today.getFullYear();
 
-    document.getElementById('colourDateLabel').innerText = `Prediction Date: ${day}-${month}-${year}`;
+    document.getElementById('colourDateLabel').innerText = `Forecast Date: ${day}-${month}-${year}`;
 
     loadDistrictLayers(dateValue);
 });
