@@ -63,6 +63,12 @@
             background-color: #495057;
             cursor: pointer;
         }
+
+        /* @media (max-width: 400px){
+            .searchLocationForm {
+                max-width: calc(100vw - 45px - 2vw);
+            }
+        } */
     </style>
 </head>
 
@@ -131,7 +137,7 @@
         </button>
 
         <form class="collapse collapse-horizontal" id="searchLocationForm">
-            <input type="text" style="border-radius: 20px; width: 350px; z-index: 1500; max-width: 60vw;" class="form-control"
+            <input type="text" style="border-radius: 20px; width: 350px; z-index: 1500; max-width: calc(100vw - 112.5px - 4vw);" class="form-control"
                 id="locationSearch" placeholder="Search Location Risk">
             <div id="suggestions"
                 style="display: none; padding: 0px 10px; z-index: 1500;margin-top: 10px; width: 350px; border-radius: 10px; position: absolute; background: white; border: 1px solid #ccc; max-height: 200px; overflow-y: auto; z-index: 1500; max-width: 60vw;">

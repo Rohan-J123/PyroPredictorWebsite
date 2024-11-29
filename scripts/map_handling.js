@@ -12,6 +12,10 @@ if(window.innerHeight < 500){
     document.getElementById('slidersDiv').style.left = "85px";
 }
 
+if(window.innerWidth < 500){
+    // document.getElementById('locationSearch').style.maxWidth = "calc(100vw - 45px - 2vw)";
+}
+
 async function determineColour(districtID, dateNumber, signal) {
     try {
         if (signal.aborted) {
