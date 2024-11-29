@@ -126,7 +126,7 @@
         style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0); z-index: 1000;">
     </div>
     <div
-        style="left: 2vw; display: flex; position: absolute; z-index: 1500; top: 70px; flex-direction: row; align-items: center;">
+        style="left: 2vw; display: flex; position: fixed; z-index: 1500; top: 70px; flex-direction: row; align-items: center;">
         <button id="locationInputOpen" class="btn btn-light" type="button" data-bs-toggle="collapse"
             data-bs-target="#searchLocationForm" aria-expanded="false" aria-controls="searchLocationForm"
             style="width: 45px; height: 45px; border-radius: 45px; margin-right: 5px; display: flex; justify-content: center; align-items: center; border-width: 3px; border-color: gray;"
@@ -140,12 +140,12 @@
             <input type="text" style="border-radius: 20px; width: 350px; z-index: 1500; max-width: calc(100vw - 112.5px - 4vw);" class="form-control"
                 id="locationSearch" placeholder="Search Location Risk">
             <div id="suggestions"
-                style="display: none; padding: 0px 10px; z-index: 1500;margin-top: 10px; width: 350px; border-radius: 10px; position: absolute; background: white; border: 1px solid #ccc; max-height: 200px; overflow-y: auto; z-index: 1500; max-width: 60vw;">
+                style="display: none; padding: 0px 10px; z-index: 1500;margin-top: 10px; width: 350px; border-radius: 10px; position: fixed; background: white; border: 1px solid #ccc; max-height: 200px; overflow-y: auto; z-index: 1500; max-width: 60vw;">
             </div>
         </form>
     </div>
     <div
-        style="left: 2vw; display: flex; position: absolute; z-index: 1500; top: 130px; flex-direction: row; align-items: center;">
+        style="left: 2vw; display: flex; position: fixed; z-index: 1500; top: 130px; flex-direction: row; align-items: center;">
         <button id="clearMarkers" class="btn btn-light" type="button"
             style="width: 45px; height: 45px; border-radius: 45px; margin-right: 5px; display: flex; justify-content: center; align-items: center; border-width: 3px; border-color: gray;"
             onclick="map.eachLayer(function(layer) {if (layer instanceof L.Marker) {map.removeLayer(layer);}});">
@@ -156,7 +156,7 @@
     </div>
 
     <div
-        style="left: 2vw; display: flex; position: absolute; z-index: 1500; top: 230px; flex-direction: row; align-items: center;">
+        style="left: 2vw; display: flex; position: fixed; z-index: 1500; top: 230px; flex-direction: row; align-items: center;">
         <button id="clearMarkers" class="btn btn-light" type="button"
             style="width: 45px; height: 45px; border-radius: 45px; margin-right: 5px; display: flex; justify-content: center; align-items: center; border-width: 3px; border-color: gray;"
             data-bs-toggle="modal" data-bs-target="#settingsModal">
@@ -166,7 +166,7 @@
         </button>
     </div>
     <div
-        style="left: 2vw; display: flex; position: absolute; z-index: 1500; top: 290px; flex-direction: row; align-items: center;">
+        style="left: 2vw; display: flex; position: fixed; z-index: 1500; top: 290px; flex-direction: row; align-items: center;">
         <button id="clearMarkers" class="btn btn-light" type="button"
             style="width: 45px; height: 45px; border-radius: 45px; margin-right: 5px; display: flex; justify-content: center; align-items: center; border-width: 3px; border-color: gray;">
             <span class="material-symbols-outlined" style="font-weight: bolder; color: gray;">
@@ -175,7 +175,7 @@
         </button>
     </div>
 
-    <div id="slidersDiv" style="position: absolute; z-index: 1500; left: 2vw; bottom: 40px;">
+    <div id="slidersDiv" style="position: fixed; z-index: 1500; left: 2vw; bottom: 40px;">
         <label id="colourDateLabel" style="font-size: x-large;" for="colourDateSlider" class="lobster-regular">Forecast Date: 29-11-2024</label>
         <br>
         <input type="range" id="colourDateSlider" style="accent-color: #0d6efd; width: 250px;" min="0" max="6"
@@ -186,12 +186,12 @@
         <input type="range" id="colourOpacitySlider" style="accent-color: #0d6efd; width: 250px;" min="0" max="1"
             step="0.01" value="0.5">
     </div>
-    <!-- <div style="pointer-events: none; transform: scale(1, 1.5); position: absolute; z-index: 1500; right: 125px; bottom: 45px; font-size: 40px; opacity: 60%; font-style: italic; font-weight: bold;"
+    <!-- <div style="pointer-events: none; transform: scale(1, 1.5); position: fixed; z-index: 1500; right: 125px; bottom: 45px; font-size: 40px; opacity: 60%; font-style: italic; font-weight: bold;"
         class="abril-fatface-regular">
         Pyro Predictor
     </div> -->
     <div
-        style="position: absolute; z-index: 1500; right: 3vw; bottom: 50px; display: flex; flex-direction: column; align-items: center;">
+        style="position: fixed; z-index: 1500; right: 3vw; bottom: 50px; display: flex; flex-direction: column; align-items: center;">
         <div class="btn-group-vertical" role="group" aria-label="Vertical button group" style="width: 40px;">
             <button type="button" class="btn btn-light"
                 style="display: flex; justify-content: center; align-items: center; width: 40px; height: 40px;"
@@ -215,7 +215,7 @@
         </button>
     </div>
     <div id="spinnerCircle" class="spinner-border text-primary" role="status"
-        style="display: none; z-index: 3000; position: absolute; top: 40%; left: 50%; width: 50px; height: 50px;">
+        style="display: none; z-index: 3000; position: fixed; top: 40%; left: 50%; width: 50px; height: 50px;">
         <span class="visually-hidden">Loading...</span>
     </div>
 
