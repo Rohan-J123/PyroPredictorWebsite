@@ -131,10 +131,10 @@
         </button>
 
         <form class="collapse collapse-horizontal" id="searchLocationForm">
-            <input type="text" style="border-radius: 20px; width: 350px; z-index: 1500;" class="form-control"
+            <input type="text" style="border-radius: 20px; width: 350px; z-index: 1500; max-width: 60vw;" class="form-control"
                 id="locationSearch" placeholder="Search Location Risk">
             <div id="suggestions"
-                style="display: none; padding: 0px 10px; z-index: 1500;margin-top: 10px; width: 350px; border-radius: 10px; position: absolute; background: white; border: 1px solid #ccc; max-height: 200px; overflow-y: auto; z-index: 1500;">
+                style="display: none; padding: 0px 10px; z-index: 1500;margin-top: 10px; width: 350px; border-radius: 10px; position: absolute; background: white; border: 1px solid #ccc; max-height: 200px; overflow-y: auto; z-index: 1500; max-width: 60vw;">
             </div>
         </form>
     </div>
@@ -169,7 +169,7 @@
         </button>
     </div>
 
-    <div style="position: absolute; z-index: 1500; left: 2vw; bottom: 40px;">
+    <div id="slidersDiv" style="position: absolute; z-index: 1500; left: 2vw; bottom: 40px;">
         <label id="colourDateLabel" style="font-size: x-large;" for="colourDateSlider" class="lobster-regular">Forecast Date: 29-11-2024</label>
         <br>
         <input type="range" id="colourDateSlider" style="accent-color: #0d6efd; width: 250px;" min="0" max="6"

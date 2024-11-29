@@ -8,6 +8,10 @@ map.zoomControl && map.removeControl(map.zoomControl);
 
 var geoJSONLayers = [];
 
+if(window.innerHeight < 500){
+    document.getElementById('slidersDiv').style.left = "85px";
+}
+
 async function determineColour(districtID, dateNumber, signal) {
     try {
         if (signal.aborted) {
