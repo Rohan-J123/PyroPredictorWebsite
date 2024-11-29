@@ -16,6 +16,21 @@ if(window.innerWidth < 500){
     // document.getElementById('locationSearch').style.maxWidth = "calc(100vw - 45px - 2vw)";
 }
 
+function getDateRange(i) {
+    let now = new Date();
+    now.setDate(now.getDate() + i);
+
+    let options = { timeZone: 'Asia/Kolkata', year: 'numeric', month: '2-digit', day: '2-digit' }; 
+    let formatter = new Intl.DateTimeFormat('en-GB', options); 
+
+    let parts = formatter.formatToParts(now); 
+    let day = parts.find(part => part.type === 'day').value; 
+    let month = parts.find(part => part.type === 'month').value; 
+    let year = parts.find(part => part.type === 'year').value; 
+
+    return `${day}-${month}-${year}`; 
+}
+
 async function determineColour(districtID, dateNumber, signal) {
     try {
         if (signal.aborted) {
@@ -140,32 +155,11 @@ document.getElementById('colourDateSlider').addEventListener('input', function(e
     var dateValue = parseInt(e.target.value);
 
     console.log(dateValue);
-    
-    const today = new Date();
 
-    today.setDate(today.getDate() + dateValue);
-
-    const day = String(today.getDate()).padStart(2, '0');
-    const month = String(today.getMonth() + 1).padStart(2, '0');
-    const year = today.getFullYear();
-
-    document.getElementById('colourDateLabel').innerText = `Forecast Date: ${day}-${month}-${year}`;
+    document.getElementById('colourDateLabel').innerText = `Forecast Date: ` +  getDateRange(dateValue);
 
     loadDistrictLayers(dateValue);
 });
-
-function getDateRange(i){
-    const today = new Date();
-
-    today.setDate(today.getDate() + i);
-
-    const day = String(today.getDate()).padStart(2, '0');
-    const month = String(today.getMonth() + 1).padStart(2, '0');
-    const year = today.getFullYear();
-
-    return `${day}-${month}-${year}`
-}
-
 
 var geocoder = L.Control.Geocoder.nominatim();
 
