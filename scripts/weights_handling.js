@@ -22,3 +22,11 @@ for (let i = 0; i < 20; i++) {
         }
     });
 }
+
+function resetWeights(){
+    for (let i = 0; i < 20; i++) {
+        document.getElementById('weightSlider' + String(i)).value = (1).toFixed(2);
+    
+        document.getElementById('weightLabel' + String(i)).value = (1).toFixed(2);
+    }
+}

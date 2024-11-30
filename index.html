@@ -80,31 +80,81 @@
                     <a class="navbar-brand" href="./">
                         <img src="./Images/Forest_Fire.png" alt="Forest Fire Icon" width="40px" height="40px" style="padding: 0%;">
                     </a>
-                    <a class="navbar-brand abril-fatface-regular" style="pointer-events: none; font-weight: 100; color: white; font-size: xx-large; padding: 0%; font-style: italic;">Pyro Predictor</a>
+                    <a class="navbar-brand abril-fatface-regular" style="pointer-events: none; font-weight: 100; color: white; font-size: xx-large; padding: 0%; font-style: italic; transform: scaleY(1.25);">Pyro Predictor</a>
                     <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                         data-bs-target="#navbarColor02" aria-controls="navbarColor02" aria-expanded="false"
                         aria-label="Toggle navigation">
                         <span class="navbar-toggler-icon"></span>
                     </button>
                     <div class="collapse navbar-collapse" id="navbarColor02">
-                        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                            <li class="nav-item">
-                                <a class="nav-link active" aria-current="page" href="#">Home</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="#">Features</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="#">Pricing</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="#">About</a>
-                            </li>
-                        </ul>
-                        <form class="d-flex" role="search">
-                            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                        <div class="d-flex justify-content-between w-100">
+                            <!-- Left side UL -->
+                            <ul class="navbar-nav me-auto mb-2 mb-lg-0 d-flex">
+                                <li class="nav-item">
+                                    <a class="nav-link active" style="width: 45px;"></a>
+                                </li>
+                                <li class="nav-item">
+                                    <button class="btn btn-light" type="button"
+                                        style="width: 45px; height: 45px; border-radius: 45px; margin-right: 10px; display: flex; justify-content: center; align-items: center; border-width: 3px; 
+                                        border-color: rgba(128, 128, 128, 0); background-color: rgba(0, 0, 0, 0);" 
+                                        onclick="window.open('https://github.com/Rohan-J123/PyroPredictorWebsite', '_blank');">
+                                        <img src="./Images/Github_Logo.png" style="width: 40px; height: 40px;">
+                                    </button>
+                                </li>
+                                <li class="nav-item">
+                                    <button class="btn btn-light" type="button"
+                                        style="width: 45px; height: 45px; border-radius: 45px; margin-right: 10px; display: flex; justify-content: center; align-items: center; border-width: 3px; 
+                                        border-color: rgba(128, 128, 128, 0); background-color: rgba(0, 0, 0, 0);" 
+                                        onclick="window.open('https://github.com/Rohan-J123/PyroPredictorWebsite', '_blank');">
+                                        <img src="./Images/Paper_Logo.png" style="width: 40px; height: 40px;">
+                                    </button>
+                                </li>
+                                <li class="nav-item">
+                                    <button class="btn btn-light" type="button"
+                                        style="width: 45px; height: 45px; border-radius: 45px; margin-right: 10px; display: flex; justify-content: center; align-items: center; border-width: 3px; 
+                                        border-color: rgba(128, 128, 128, 0); background-color: rgba(0, 0, 0, 0);" 
+                                        onclick="window.open('https://www.bits-pilani.ac.in/goa/', '_blank');">
+                                        <img src="./Images/Bits_Logo.png" style="width: 40px; height: 40px;">
+                                    </button>
+                                </li>
+                            </ul>
+                    
+                            <!-- Right side UL -->
+                            <ul class="navbar-nav mb-2 mb-lg-0 d-flex">
+                                <li class="nav-item">
+                                    <button class="btn btn-light" type="button"
+                                        style="width: 45px; height: 45px; border-radius: 45px; margin-right: 10px; display: flex; justify-content: center; align-items: center; border-width: 3px; border-color: gray;"
+                                        onclick="map.eachLayer(function(layer) {if (layer instanceof L.Marker) {map.removeLayer(layer);}});">
+                                        <span class="material-symbols-outlined" style="font-weight: bolder; color: gray;">
+                                            delete_forever
+                                        </span>
+                                    </button>
+                                </li>
+                                <li class="nav-item">
+                                    <button class="btn btn-light" type="button"
+                                        style="width: 45px; height: 45px; border-radius: 45px; margin-right: 10px; display: flex; justify-content: center; align-items: center; border-width: 3px; border-color: gray;"
+                                        data-bs-toggle="modal" data-bs-target="#settingsModal">
+                                        <span class="material-symbols-outlined" style="font-weight: bolder; color: gray;">
+                                            settings
+                                        </span>
+                                    </button>
+                                </li>
+                                <li class="nav-item">
+                                    <button class="btn btn-light" type="button"
+                                        style="width: 45px; height: 45px; border-radius: 45px; margin-right: 10px; display: flex; justify-content: center; align-items: center; border-width: 3px; border-color: gray;"
+                                        data-bs-toggle="modal" data-bs-target="#infoModal">
+                                        <span class="material-symbols-outlined" style="font-weight: bolder; color: gray;">
+                                            question_mark
+                                        </span>
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                        <form class="d-flex" id="searchLocationFormNav" style="position: relative;">
+                            <input type="text" style="border-radius: 5px; margin-right: 20px; width: 300px; max-width: calc(100vw - 112.5px - 4vw);" class="form-control"
+                                id="locationSearchNav" placeholder="Search Location Risk" autocomplete="off">
                             <button class="btn btn-outline-light" type="submit">Search</button>
-                        </form>
+                        </form>                        
                     </div>
                 </div>
             </nav>
@@ -138,7 +188,7 @@
 
         <form class="collapse collapse-horizontal" id="searchLocationForm">
             <input type="text" style="border-radius: 20px; width: 350px; z-index: 1500; max-width: calc(100vw - 112.5px - 4vw);" class="form-control"
-                id="locationSearch" placeholder="Search Location Risk">
+                id="locationSearch" placeholder="Search Location Risk" autocomplete="off">
             <div id="suggestions"
                 style="display: none; padding: 0px 10px; z-index: 1500;margin-top: 10px; width: 350px; border-radius: 10px; position: fixed; background: white; border: 1px solid #ccc; max-height: 200px; overflow-y: auto; z-index: 1500; max-width: 60vw;">
             </div>
@@ -146,7 +196,7 @@
     </div>
     <div
         style="left: 2vw; display: flex; position: fixed; z-index: 1500; top: 130px; flex-direction: row; align-items: center;">
-        <button id="clearMarkers" class="btn btn-light" type="button"
+        <button class="btn btn-light" type="button"
             style="width: 45px; height: 45px; border-radius: 45px; margin-right: 5px; display: flex; justify-content: center; align-items: center; border-width: 3px; border-color: gray;"
             onclick="map.eachLayer(function(layer) {if (layer instanceof L.Marker) {map.removeLayer(layer);}});">
             <span class="material-symbols-outlined" style="font-weight: bolder; color: gray;">
@@ -157,7 +207,7 @@
 
     <div
         style="left: 2vw; display: flex; position: fixed; z-index: 1500; top: 230px; flex-direction: row; align-items: center;">
-        <button id="clearMarkers" class="btn btn-light" type="button"
+        <button class="btn btn-light" type="button"
             style="width: 45px; height: 45px; border-radius: 45px; margin-right: 5px; display: flex; justify-content: center; align-items: center; border-width: 3px; border-color: gray;"
             data-bs-toggle="modal" data-bs-target="#settingsModal">
             <span class="material-symbols-outlined" style="font-weight: bolder; color: gray;">
@@ -167,8 +217,9 @@
     </div>
     <div
         style="left: 2vw; display: flex; position: fixed; z-index: 1500; top: 290px; flex-direction: row; align-items: center;">
-        <button id="clearMarkers" class="btn btn-light" type="button"
-            style="width: 45px; height: 45px; border-radius: 45px; margin-right: 5px; display: flex; justify-content: center; align-items: center; border-width: 3px; border-color: gray;">
+        <button class="btn btn-light" type="button"
+            style="width: 45px; height: 45px; border-radius: 45px; margin-right: 5px; display: flex; justify-content: center; align-items: center; border-width: 3px; border-color: gray;"
+            data-bs-toggle="modal" data-bs-target="#infoModal">
             <span class="material-symbols-outlined" style="font-weight: bolder; color: gray;">
                 question_mark
             </span>
@@ -501,6 +552,64 @@
                         data-bs-slide="next" style="width: 50px;">
                         &gt;
                     </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+            <div class="modal-content">
+                <div class="modal-header" style="padding: 5px 20px;">
+                    <div style="width: 5%;"></div>
+                    <h1 class="modal-title fs-1 lobster-regular" id="infoModalLabel"
+                        style="text-align: center; width: 90%;">Website Information</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+                        style="width: 5%;" id="infoModalClose"></button>
+                </div>
+                <div class="modal-body" style="padding: 20px;">
+                    <h3 class="lobster-regular" style="text-align: center; width: 100%;">INFO</h3>
+                    <p style="font-size: large; text-align: justify;">
+                        PyroPredictor is a cutting-edge web application designed to predict the probability of forest fires in a specific location. By leveraging advanced machine learning models and analyzing key environmental factors such as weather conditions, vegetation, and historical data, the website provides accurate and actionable risk assessments. PyroPredictor empowers users, including researchers, policymakers, and local communities, to make informed decisions to mitigate wildfire risks and protect natural habitats. The platform is user-friendly, with features like interactive maps, customizable predictions, and detailed insights into the factors driving the results.
+                    </p>
+                    <p style="font-size: large; text-align: justify;">
+                        PyroPredictor visually represents forest fire probabilities across India by color-coding each district based on its risk level. Built using a custom-trained model, the website combines data-driven predictions with an intuitive, interactive interface. Utilizing powerful tools like Leaflet for mapping, Bootstrap for responsive design, and libraries such as TensorFlow and D3.js for seamless data visualization, PyroPredictor offers an engaging and informative experience. Users can explore risk levels dynamically on a map, view trends, and dive into detailed district-specific information, all designed to make complex data accessible and actionable for diverse audiences.
+                    </p>
+                    <br>
+                    <h3 class="lobster-regular" style="text-align: center; width: 100%;">LEGEND</h3>
+                    <p>
+                        <div style="display: flex;">
+                            <div style="height: 20px; width: 20px; background-color: green; border-radius: 2px; margin-right: 20px;"></div>
+                            <div style="font-size: large;">Regions shaded in this color have a negligible chance of forest fires</div>
+                        </div>
+                        <div style="display: flex;">
+                            <div style="height: 20px; width: 20px; background-color: yellow; border-radius: 2px; margin-right: 20px;"></div>
+                            <div style="font-size: large;">Regions shaded in this color have a low but notable chance of forest fires</div>
+                        </div>
+                        <div style="display: flex;">
+                            <div style="height: 20px; width: 20px; background-color: orange; border-radius: 2px; margin-right: 20px;"></div>
+                            <div style="font-size: large;">Regions shaded in this color have a moderate chance of forest fires</div>
+                        </div>
+                        <div style="display: flex;">
+                            <div style="height: 20px; width: 20px; background-color: red; border-radius: 2px; margin-right: 20px;"></div>
+                            <div style="font-size: large;">Regions shaded in this color have a significant chance of forest fires</div>
+                        </div>
+                    </p>
+                    <br>
+                    <b>Copyright Notice</b>
+                    <p>
+                        © 2024 Rohan Jha. All rights reserved.
+                        <br>
+                        This website, PyroPredictor, is an open-source project licensed under the MIT License.
+                        You are free to use, modify, and distribute the code under the terms of the license.    
+                    </p>
+                </div>
+                <div class="modal-footer"
+                    style="padding: 10px 30px; display: flex; justify-content: space-between; width: 100%;">
+                    <div>
+                        <button type="button" class="btn btn-danger"
+                        style="width: 100px; margin-right: 20px; font-size: large; font-family: 'Times New Roman'" onclick="document.getElementById('infoModalClose').click();">CLOSE</button>
+                    </div>
                 </div>
             </div>
         </div>

@@ -16,21 +16,6 @@ if(window.innerWidth < 500){
     // document.getElementById('locationSearch').style.maxWidth = "calc(100vw - 45px - 2vw)";
 }
 
-function getDateRange(i) {
-    let now = new Date();
-    now.setDate(now.getDate() + i);
-
-    let options = { timeZone: 'Asia/Kolkata', year: 'numeric', month: '2-digit', day: '2-digit' }; 
-    let formatter = new Intl.DateTimeFormat('en-GB', options); 
-
-    let parts = formatter.formatToParts(now); 
-    let day = parts.find(part => part.type === 'day').value; 
-    let month = parts.find(part => part.type === 'month').value; 
-    let year = parts.find(part => part.type === 'year').value; 
-
-    return `${day}-${month}-${year}`; 
-}
-
 async function determineColour(districtID, dateNumber, signal) {
     try {
         if (signal.aborted) {
@@ -139,6 +124,7 @@ async function loadDistrictLayers(dateNumber) {
 }
 
 loadDistrictLayers(0);
+document.getElementById('colourDateLabel').innerText = `Forecast Date: ` +  getDateRange(0);
 
 document.getElementById('colourOpacitySlider').addEventListener('input', function(e) {
     var opacityValue = e.target.value;
@@ -218,6 +204,59 @@ async function validateLocation() {
     }
 }
 
+async function validateLocationNav() {
+    document.getElementById('spinnerCircle').style.display = "block";
+
+    var location = document.getElementById('locationSearchNav').value;
+
+    if (location.trim() === "") {
+        alert("Please enter a location");
+        document.getElementById('spinnerCircle').style.display = "none";
+        return;
+    }
+
+    try {
+        const results = await geocodeLocation(location);
+
+        if (results.length > 0) {
+            var result = results[0];
+            map.setView(result.center, 13);
+
+            geoJSONLayers.forEach(function(layer) {
+                layer.setStyle({
+                    weight: 0.2,
+                    fillOpacity: 0.2
+                });
+            });
+
+            document.getElementById('colourOpacitySlider').value = 0.2;
+            var lat = result.center.lat;
+            var lng = result.center.lng;
+            
+            const predictionNumber = await runModelPrediction(lat, lng);
+
+            var popupContent = "Location: " + result.name + "<br><br>" +
+                               "Latitude: " + lat.toFixed(6) + "<br>" +
+                               "Longitude: " + lng.toFixed(6) + "<br><br>" +
+                               "Forest Fire Prediction:- " + "<br>" +
+                                predictionNumber[0] + "%";
+    
+            L.marker(result.center).addTo(map)
+                .bindPopup(popupContent)
+                .openPopup();
+            
+            document.getElementById('spinnerCircle').style.display = "none";
+        } else {
+            alert("Invalid location entered. Please try again.");
+            document.getElementById('spinnerCircle').style.display = "none";
+        }
+    } catch (error) {
+        console.log("Error:", error);
+        alert("An error occurred while processing the location. Please try again.");
+        document.getElementById('spinnerCircle').style.display = "none";
+    }
+}
+
 async function geocodeLocation(location) {
     return new Promise((resolve, reject) => {
         geocoder.geocode(location, function(results) {
@@ -235,6 +274,12 @@ document.getElementById("searchLocationForm").addEventListener("submit", functio
     event.preventDefault();
     validateLocation();
 });
+
+document.getElementById("searchLocationFormNav").addEventListener("submit", function(event) {
+    event.preventDefault();
+    validateLocationNav();
+});
+
 
 async function searchLocation(query) {
     const response = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=5`);
@@ -306,8 +351,6 @@ input.addEventListener('input', async () => {
         console.log("Error fetching location results.", error);
     }
 });
-
-
 
 document.getElementById('background').addEventListener('click', function(event) {
     document.getElementById('locationInputOpen').click();

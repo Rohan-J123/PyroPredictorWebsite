@@ -13,6 +13,32 @@ tf.serialization.registerClass(L2);
 var model_original;
 var model_modify;
 
+function getDateRange(i) {
+    let now = new Date();
+    now.setDate(now.getDate() + i);
+
+    let options = { timeZone: 'Asia/Kolkata', year: 'numeric', month: '2-digit', day: '2-digit' }; 
+    let formatter = new Intl.DateTimeFormat('en-GB', options); 
+
+    let parts = formatter.formatToParts(now); 
+    let day = parts.find(part => part.type === 'day').value; 
+    let month = parts.find(part => part.type === 'month').value; 
+    let year = parts.find(part => part.type === 'year').value; 
+
+    return `${day}-${month}-${year}`; 
+}
+
+var dateOfDistrictModify = localStorage.getItem("Date");
+
+console.log(dateOfDistrictModify, getDateRange(0));
+if (dateOfDistrictModify == null || getDateRange(0) != dateOfDistrictModify) {
+    console.log("Clearing localStorage...");
+    localStorage.clear();
+    localStorage.setItem("Date", getDateRange(0));
+} else {
+    console.log("Condition not met.");
+}
+
 async function loadModels() {
     try {
         model_original = await tf.loadLayersModel('../Model/Forest_Fire_Predictor_3_Original/model.json');
@@ -88,7 +114,7 @@ async function runModelPredictionDistrict(districtID, dateNumber) {
 
         let groupedData;
 
-        if (cachedParameters !== null && localStorage.getItem("Date") !== null && getDateRange(0) == localStorage.getItem("Date")) {
+        if (cachedParameters !== null) {
             console.log('Using cached parameters');
             groupedData = cachedParameters;
         } else {
@@ -98,7 +124,6 @@ async function runModelPredictionDistrict(districtID, dateNumber) {
             }
             groupedData = await response.json();
             localStorage.setItem(cacheKey, JSON.stringify(groupedData));
-            localStorage.setItem("Date", getDateRange(0));
         }
 
         const inputTensor = tf.tensor([groupedData[dateNumber]]);
