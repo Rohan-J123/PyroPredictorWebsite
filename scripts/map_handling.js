@@ -36,14 +36,14 @@ async function determineColour(districtID, dateNumber, signal) {
             } else {
                 colourVal = 'red';
             }
-            return colourVal;
+            return [colourVal, colourResult];
         } else {
             console.error("Invalid colourResult:", colourResult);
-            return 'black';
+            return ['black', 0];
         }
     } catch (error) {
         console.error("Error during prediction:", error);
-        return 'black';
+        return ['black', 0];
     }
 }
 
@@ -85,18 +85,20 @@ async function loadDistrictLayers(dateNumber) {
         const data = await response.json();
 
         let previousColor = null;
+        let previousResult = null
         for (var i = 0; i < data['features'].length; i++) {
             var districtID = data['features'][i].id;
             try {
-                var colourVal = await determineColour(districtID, dateNumber, signal);
+                var [colourVal, colourResult] = await determineColour(districtID, dateNumber, signal);
                 console.log("ColourVal: " + colourVal);
 
                 if (colourVal != null) {
                     var layer = L.geoJSON(data['features'][i], {
                         style: function () {
                             var layerColor = (colourVal === 'black' && previousColor) ? previousColor : colourVal;
+                            var colourResult = (colourVal === 'black' && previousColor) ? previousResult : colourResult;
                             previousColor = layerColor;
-
+                            previousResult = colourResult
                             return {
                                 color: 'black',
                                 weight: document.getElementById('colourOpacitySlider').value,
@@ -105,6 +107,7 @@ async function loadDistrictLayers(dateNumber) {
                             };
                         }
                     });
+                    layer.bindPopup("<b>" + "Fire Probability: " + parseInt(colourResult * 10) + "</b><br>");
                 }
 
                 layer.addTo(map);
