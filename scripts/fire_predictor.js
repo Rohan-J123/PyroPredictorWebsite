@@ -1,43 +1,72 @@
-var cloudURL = "https://pyropredictor.netlify.app/.netlify/functions/api";
+const cloudURL = "https://pyropredictor.netlify.app/.netlify/functions/api";
 
 class L2 {
-
     static className = 'L2';
 
     constructor(config) {
-       return tf.regularizers.l1l2(config)
+        return tf.regularizers.l1l2(config);
     }
 }
 tf.serialization.registerClass(L2);
 
-var model_original;
-var model_modify;
+let model_original;
+let model_modify;
 
-function getDateRange(i) {
-    let now = new Date();
-    now.setDate(now.getDate() + i);
+function getDateRange(offset) {
+    const now = new Date();
+    now.setDate(now.getDate() + offset);
 
-    let options = { timeZone: 'Asia/Kolkata', year: 'numeric', month: '2-digit', day: '2-digit' }; 
-    let formatter = new Intl.DateTimeFormat('en-GB', options); 
+    const options = { timeZone: 'Asia/Kolkata', year: 'numeric', month: '2-digit', day: '2-digit' };
+    const formatter = new Intl.DateTimeFormat('en-GB', options);
 
-    let parts = formatter.formatToParts(now); 
-    let day = parts.find(part => part.type === 'day').value; 
-    let month = parts.find(part => part.type === 'month').value; 
-    let year = parts.find(part => part.type === 'year').value; 
+    const parts = formatter.formatToParts(now);
+    const day = parts.find(part => part.type === 'day').value;
+    const month = parts.find(part => part.type === 'month').value;
+    const year = parts.find(part => part.type === 'year').value;
 
-    return `${day}-${month}-${year}`; 
+    return `${day}-${month}-${year}`;
 }
 
-var dateOfDistrictModify = localStorage.getItem("Date");
+async function initializeLocalStorage() {
+    const dateOfDistrictModify = localStorage.getItem("Date");
 
-console.log(dateOfDistrictModify, getDateRange(0));
-if (dateOfDistrictModify == null || getDateRange(0) != dateOfDistrictModify) {
-    console.log("Clearing localStorage...");
-    localStorage.clear();
-    localStorage.setItem("Date", getDateRange(0));
-} else {
-    console.log("Condition not met.");
+    if (!dateOfDistrictModify || getDateRange(0) !== dateOfDistrictModify) {
+        console.log("Clearing localStorage...");
+        localStorage.clear();
+        localStorage.setItem("Date", getDateRange(0));
+
+        try {
+            const response = await fetch(`${cloudURL}/getDistrictData`);
+
+            if (!response.ok) {
+                throw new Error(`Network response was not ok: ${response.statusText}`);
+            }
+
+            const districtData = await response.json();
+
+            districtData.forEach(district => {
+                const districtNumber = district["id"];
+                const cacheKey = `districtID=${districtNumber}`;
+                const groupedData = [];
+
+                for (let j = 0; j < 7; j++) {
+                    const dataKey = `data${j}`;
+                    if (district.hasOwnProperty(dataKey)) {
+                        groupedData.push(district[dataKey]);
+                    }
+                }
+
+                localStorage.setItem(cacheKey, JSON.stringify(groupedData));
+            });
+        } catch (error) {
+            console.error("Error fetching district data:", error);
+        }
+    } else {
+        console.log("Latest Data Already.");
+    }
 }
+
+let localStorageInitPromise = initializeLocalStorage();
 
 async function loadModels() {
     try {
@@ -52,8 +81,6 @@ async function loadModels() {
     }
 }
 
-loadModels();
-
 async function runModelPrediction(latitude, longitude) {
     try {
         if (!model_original || !model_modify) {
@@ -62,40 +89,35 @@ async function runModelPrediction(latitude, longitude) {
         }
 
         const cacheKey = `la=${latitude.toFixed(3)},lo=${longitude.toFixed(3)}`;
-        const cachedParameters = JSON.parse(sessionStorage.getItem(cacheKey));
+        let groupedData = JSON.parse(sessionStorage.getItem(cacheKey));
 
-        let groupedData;
+        if (!groupedData) {
+            const response = await fetch(`${cloudURL}/getLocationData?locationLatitude=${latitude}&locationLongitude=${longitude}`);
 
-        if (cachedParameters !== null) {
-            console.log('Using cached parameters');
-            groupedData = cachedParameters;
-        } else {
-            const response = await fetch(cloudURL + `/getLocationData?locationLatitude=${latitude}&locationLongitude=${longitude}`);
             if (!response.ok) {
                 throw new Error(`Network response was not ok: ${response.statusText}`);
             }
+
             groupedData = await response.json();
             sessionStorage.setItem(cacheKey, JSON.stringify(groupedData));
+        } else {
+            console.log('Using cached parameters');
         }
 
         const results = [];
+
         for (let i = 0; i < 7; i++) {
             const inputTensor = tf.tensor([groupedData[i]]);
             const prediction = model_modify.predict(inputTensor);
             const predictionArray = await prediction.array();
 
-            if(parseFloat(predictionArray[0]) < 0){
-                results.push(0);
-            } else {
-                results.push(predictionArray[0] * 10);
-            }
+            results.push(Math.max(0, predictionArray[0] * 10));
 
             inputTensor.dispose();
             prediction.dispose();
         }
 
         return results;
-
     } catch (error) {
         console.error('Error during prediction:', error);
         throw error;
@@ -110,20 +132,12 @@ async function runModelPredictionDistrict(districtID, dateNumber) {
         }
 
         const cacheKey = `districtID=${districtID}`;
-        const cachedParameters = JSON.parse(localStorage.getItem(cacheKey));
+        var groupedData = JSON.parse(localStorage.getItem(cacheKey));
 
-        let groupedData;
-
-        if (cachedParameters !== null) {
-            console.log('Using cached parameters');
-            groupedData = cachedParameters;
-        } else {
-            const response = await fetch(`${cloudURL}/getDistrictData?districtID=${districtID}`);
-            if (!response.ok) {
-                throw new Error(`Network response was not ok: ${response.statusText}`);
-            }
-            groupedData = await response.json();
-            localStorage.setItem(cacheKey, JSON.stringify(groupedData));
+        if (!groupedData) {
+            console.log("District Data not loaded yet...")
+            await localStorageInitPromise;
+            groupedData = JSON.parse(localStorage.getItem(cacheKey));
         }
 
         const inputTensor = tf.tensor([groupedData[dateNumber]]);
@@ -134,7 +148,6 @@ async function runModelPredictionDistrict(districtID, dateNumber) {
         prediction.dispose();
 
         return predictionArray[0];
-
     } catch (error) {
         console.error('Error during prediction:', error);
         throw error;
@@ -147,9 +160,6 @@ async function modifyModelWeights(weightArray) {
         const firstLayerModify = model_modify.getLayer('dense');
 
         const [weights, biases] = firstLayerOriginal.getWeights();
-
-        const zeroBiases = tf.zerosLike(biases);
-
         const weightsArray = weights.arraySync();
 
         for (let i = 0; i < weightArray.length; i++) {
@@ -159,21 +169,28 @@ async function modifyModelWeights(weightArray) {
         }
 
         const modifiedWeights = tf.tensor(weightsArray);
-        
+        const zeroBiases = tf.zerosLike(biases);
+
         firstLayerModify.setWeights([modifiedWeights, zeroBiases]);
+
+        console.log("Model weights modified successfully");
     } catch (error) {
-        console.error('Error during prediction:', error);
+        console.error('Error modifying model weights:', error);
         throw error;
     }
 }
 
 async function changeWeights() {
-    document.getElementById('weightModalClose').click();
-    var weightArray = [];
-    for(var i= 0; i < 20; i++){
-        weightArray.push(document.getElementById('weightSlider' + i).value);
-    }
+    try {
+        document.getElementById('weightModalClose').click();
 
-    await modifyModelWeights(weightArray);
-    await loadDistrictLayers(0);
+        const weightArray = Array.from({ length: 20 }, (_, i) => {
+            return parseFloat(document.getElementById('weightSlider' + i).value);
+        });
+
+        await modifyModelWeights(weightArray);
+        await loadDistrictLayers(0);
+    } catch (error) {
+        console.error('Error changing weights:', error);
+    }
 }
