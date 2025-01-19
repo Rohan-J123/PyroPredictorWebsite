@@ -31,6 +31,8 @@
     <script src="./scripts/geosearch.js"></script>
 
     <script src="./scripts/tensorflowJS.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/@aptos-labs/aptos@latest"></script>
     <style>
         #map {
             width: 100%;
@@ -639,13 +641,16 @@
                         style="width: 5%;" id="donateModalClose"></button>
                 </div>
                 <div class="modal-body" style="padding: 20px;">
-                    
+                    <div class="input-group mb-3">
+                        <span class="input-group-text">APT</span>
+                        <input id="amountInput" type="number" class="form-control" aria-label="Amount (in APT)">
+                    </div>
                 </div>
                 <div class="modal-footer"
                     style="padding: 10px 30px; display: flex; justify-content: center; width: 100%;">
                     <button type="button" class="btn btn-primary"
                             style="width: 100px; font-size: large; font-family: 'Times New Roman'"
-                            onclick="document.getElementById('donateModalClose').click();">DONATE</button>
+                            onclick="donateAmount();">DONATE</button>
                 </div>
             </div>
         </div>

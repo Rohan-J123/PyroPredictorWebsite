@@ -59,6 +59,60 @@ function abortAllRequests() {
     controllers = [];
 }
 
+async function donateAmount() {
+    try {
+        if (!window.martian) {
+            alert("Martian Wallet extension is not available.");
+            console.error("Martian Wallet extension is not available.");
+            return;
+        }
+
+        const response = await window.martian.connect();
+        if (!response || !response.address) {
+            alert("Failed to connect to Martian Wallet.");
+            console.error("Failed to connect to Martian Wallet.");
+            return;
+        }
+
+        const sender = response.address;
+
+        const recipient = "0x7f0b906f47b02208ab52c1c6ade8460c8d491045c6ea4d2194d61b29bf53ee8d";
+        const customAmount = document.getElementById('amountInput').value;
+
+        if (!customAmount || isNaN(customAmount) || customAmount <= 0) {
+            alert("Invalid amount entered. Please enter a valid number greater than zero.");
+            console.error("Invalid amount entered.");
+            return;
+        }
+
+        const payload = {
+            function: "0x1::coin::transfer",
+            type_arguments: ["0x1::aptos_coin::AptosCoin"],
+            arguments: [recipient, customAmount.toString()]
+        };
+
+        const options = {
+            max_gas_amount: "10000"
+        };
+
+        const transactionRequest = await window.martian.generateTransaction(sender, payload, options);
+        const txnResponse = await window.martian.submitTransaction(transactionRequest);
+        console.log("Transaction successful:", txnResponse);
+
+        const closeButton = document.getElementById('donateModalClose');
+        if (closeButton) {
+            closeButton.click();
+        } else {
+            console.error("Modal close button not found.");
+        }
+        
+        alert("Amount donated successfully!");
+    } catch (error) {
+        console.error("Error connecting wallet or generating transaction:", error);
+        alert("An error occurred while processing the transaction. Please try again.");
+    }
+}
+
 async function loadDistrictLayers(dateNumber) {
     abortAllRequests();
 
