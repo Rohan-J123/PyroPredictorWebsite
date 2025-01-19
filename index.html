@@ -21,8 +21,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Lobster&family=Nerko+One&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Lobster&family=Nerko+One&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
-
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=add,delete_forever,menu,question_mark,recenter,remove,search,settings" />
+    
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=add,currency_rupee_circle,delete_forever,menu,question_mark,recenter,remove,search,settings" />
 
     <link rel="style" href="./style/geocoder.css">
     <script src="./scripts/geocoder.js"></script>
@@ -166,6 +166,14 @@
         aria-expanded="false" aria-controls="collapseExample" style="position: fixed; top: 70px; right: 3vw; z-index: 1500; display: flex; justify-content: center; align-items: center; border-width: 3px; border-color: gray;">
         <span class="material-symbols-outlined" style="font-weight: bolder; color: gray;">
             menu
+        </span>
+    </button>
+
+    <button class="btn btn-light" type="button"
+        style="border-radius: 45px; width: 45px; height: 45px; position: fixed; top: 130px; right: 3vw; z-index: 1500; display: flex; justify-content: center; align-items: center; border-width: 3px; border-color: gray;"
+        data-bs-toggle="modal" data-bs-target="#donateModal">
+        <span class="material-symbols-outlined" style="font-weight: bolder; color: gray;">
+            currency_rupee_circle
         </span>
     </button>
 
@@ -615,6 +623,29 @@
                         <button type="button" class="btn btn-danger"
                         style="width: 100px; margin-right: 20px; font-size: large; font-family: 'Times New Roman'" onclick="document.getElementById('infoModalClose').click();">CLOSE</button>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="donateModal" tabindex="-1" aria-labelledby="donateModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+            <div class="modal-content">
+                <div class="modal-header" style="padding: 5px 20px;">
+                    <div style="width: 5%;"></div>
+                    <h1 class="modal-title fs-1 lobster-regular" id="donateModalLabel"
+                        style="text-align: center; width: 90%;">Donate To Our Cause</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+                        style="width: 5%;" id="donateModalClose"></button>
+                </div>
+                <div class="modal-body" style="padding: 20px;">
+                    
+                </div>
+                <div class="modal-footer"
+                    style="padding: 10px 30px; display: flex; justify-content: center; width: 100%;">
+                    <button type="button" class="btn btn-primary"
+                            style="width: 100px; font-size: large; font-family: 'Times New Roman'"
+                            onclick="document.getElementById('donateModalClose').click();">DONATE</button>
                 </div>
             </div>
         </div>

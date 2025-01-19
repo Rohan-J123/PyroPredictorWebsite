@@ -66,6 +66,9 @@ async function loadDistrictLayers(dateNumber) {
     controllers.push(controller);
     const signal = controller.signal;
 
+    document.getElementById('spinnerCircle').style.display = "block";
+    document.getElementById('background').style.display = "block";
+
     try {
         geoJSONLayers.forEach(function(layer) {
             map.removeLayer(layer);
@@ -113,6 +116,9 @@ async function loadDistrictLayers(dateNumber) {
                 console.error("Error determining color for district:", error);
             }
         }
+
+        document.getElementById('spinnerCircle').style.display = "none";
+        document.getElementById('background').style.display = "none";
     } catch (error) {
         if (error.name === 'AbortError') {
             console.log('Fetch request was aborted');
